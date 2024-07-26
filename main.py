@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from pydantic import BaseModel
 import numpy as np
 import pickle
@@ -49,7 +49,7 @@ def get_common_elements(user_features, other_features, elements):
     return [elements[i] for i in common_indices]
 
 
-@app.post("/predict")
+@app.post("/recommendation")
 async def predict(user_features: UserFeatures):
     user_data = np.hstack((user_features.preferred_genres, user_features.play_times)).reshape(1, -1)
     distances, indices = model.kneighbors(user_data)
@@ -62,9 +62,9 @@ async def predict(user_features: UserFeatures):
         common_times = get_common_elements(user_features.play_times, data['play_times'][idx], times)
 
         user_info = {
-            "name": data['name'][idx],
-            "common_genres": common_genres,
-            "common_play_times": common_times
+            "추천 유저": data['name'][idx],
+            "공통 장르": common_genres,
+            "공통 게임 시간대": common_times
         }
         results.append(user_info)
 
