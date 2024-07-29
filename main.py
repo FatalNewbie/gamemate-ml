@@ -8,7 +8,7 @@ from model import load_model
 app = FastAPI()
 
 # 모델 로드
-model = load_model('model.pkl')
+model = load_model('model/model.pkl')
 
 class UserFeatures(BaseModel):
     preferred_genres: list
