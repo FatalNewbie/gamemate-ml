@@ -2,10 +2,21 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 import numpy as np
-from data import data, features, genres, times
-from model import load_model
+from starlette.middleware.cors import CORSMiddleware
+
+from data.data import data, features, genres, times
+from model.model import load_model
 
 app = FastAPI()
+
+# CORS 설정
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # localhost:3000에서 오는 요청만 허용
+    allow_credentials=True,
+    allow_methods=["*"],  # 모든 HTTP 메서드 허용
+    allow_headers=["*"],  # 모든 헤더 허용
+)
 
 # 모델 로드
 model = load_model('model/model.pkl')
