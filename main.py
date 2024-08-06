@@ -5,7 +5,7 @@ from model.ml_model import load_model
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from data.database import get_db
-from user.user_model import User
+from user.user_model import User, Genre, PlayTime
 
 app = FastAPI()
 
@@ -21,10 +21,10 @@ app.add_middleware(
 # 모델 로드
 model = load_model('model/model.pkl')
 
-# 게임 장르와 플레이 시간대 리스트 정의
-genres = ['FPS', 'RPG', '전략', '액션', '시뮬레이션']
-times = ['AM 9:00 ~ AM 11:00', 'AM 11:00 ~ PM 2:00', 'PM 2:00 ~ PM 5:00', 'PM 5:00 ~ PM 8:00', 'PM 8:00 ~ PM 11:00',
-         'PM 11:00 ~ AM 3:00', 'AM 3:00 ~ AM 9:00']
+# 장르와 플레이 시간대 리스트 정의
+genres_list = ['FPS', 'RPG', '전략', '액션', '시뮬레이션']
+times_list = ['AM 9:00 ~ AM 11:00', 'AM 11:00 ~ PM 2:00', 'PM 2:00 ~ PM 5:00', 'PM 5:00 ~ PM 8:00',
+              'PM 8:00 ~ PM 11:00', 'PM 11:00 ~ AM 3:00', 'AM 3:00 ~ AM 9:00']
 
 
 class UserFeatures(BaseModel):
@@ -40,20 +40,19 @@ def get_common_elements(user_features, other_features, elements):
 @app.post("/recommendation")
 async def predict(user_features: UserFeatures, db: Session = Depends(get_db)):
     try:
-        # User data vector 생성
         user_data = np.hstack((user_features.preferred_genres, user_features.play_times)).reshape(1, -1)
-
-        # KNN 모델에서 가장 가까운 이웃 찾기
         distances, indices = model.kneighbors(user_data)
 
-        similar_users = indices[0][1:]  # 첫 번째 결과는 자기 자신이므로 제외
+        similar_users = indices[0][1:]
         results = []
 
         for idx in similar_users:
-            user = db.query(User).filter(User.id == idx + 1).first()  # 데이터베이스 인덱스는 1부터 시작
+            user = db.query(User).filter(User.id == idx + 1).first()
             if user:
-                common_genres = get_common_elements(user_features.preferred_genres, user.preferred_genres, genres)
-                common_times = get_common_elements(user_features.play_times, user.play_times, times)
+                common_genres = get_common_elements(user_features.preferred_genres,
+                                                    [genre.id for genre in user.preferred_genres], genres_list)
+                common_times = get_common_elements(user_features.play_times, [time.id for time in user.play_times],
+                                                   times_list)
 
                 user_info = {
                     "recommend_user": user.nickname,
