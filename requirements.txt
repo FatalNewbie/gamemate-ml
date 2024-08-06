@@ -1,5 +1,8 @@
 fastapi
 uvicorn
-scikit-learn
 pydantic
 numpy
+sqlalchemy
+mysqlclient
+PyMySQL
+scikit-learn
