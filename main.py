@@ -12,7 +12,7 @@ app = FastAPI()
 # CORS 설정
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # localhost:3000에서 오는 요청만 허용
+    allow_origins=["http://localhost:3000"],  # React 앱의 주소
     allow_credentials=True,
     allow_methods=["*"],  # 모든 HTTP 메서드 허용
     allow_headers=["*"],  # 모든 헤더 허용
@@ -49,10 +49,13 @@ async def predict(user_features: UserFeatures, db: Session = Depends(get_db)):
         for idx in similar_users:
             user = db.query(User).filter(User.id == idx + 1).first()
             if user:
-                common_genres = get_common_elements(user_features.preferred_genres,
-                                                    [genre.id for genre in user.preferred_genres], genres_list)
-                common_times = get_common_elements(user_features.play_times, [time.id for time in user.play_times],
-                                                   times_list)
+                user_genres = [1 if genre.id in [g.id for g in user.preferred_genres] else 0 for genre in
+                               db.query(Genre).all()]
+                user_playtimes = [1 if playtime.id in [p.id for p in user.play_times] else 0 for playtime in
+                                  db.query(PlayTime).all()]
+
+                common_genres = get_common_elements(user_features.preferred_genres, user_genres, genres_list)
+                common_times = get_common_elements(user_features.play_times, user_playtimes, times_list)
 
                 user_info = {
                     "recommend_user": user.nickname,
