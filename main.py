@@ -58,6 +58,7 @@ async def predict(user_features: UserFeatures, db: Session = Depends(get_db)):
                 common_times = get_common_elements(user_features.play_times, user_playtimes, times_list)
 
                 user_info = {
+                    "id": user.id,
                     "recommend_user": user.nickname,
                     "common_genre": common_genres,
                     "common_play_time": common_times
