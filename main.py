@@ -60,6 +60,7 @@ async def predict(user_features: UserFeatures, db: Session = Depends(get_db)):
                 user_info = {
                     "id": user.id,
                     "recommend_user": user.nickname,
+                    "user_profile": user.user_profile,
                     "common_genre": common_genres,
                     "common_play_time": common_times
                 }

@@ -25,7 +25,7 @@ class User(Base):
     nickname = Column(String(20))
     role = Column(String(50), default="ROLE_USER")
     deleted = Column(Boolean, default=False)
-
+    user_profile = Column(String, nullable=True)
     preferred_genres = relationship("Genre", secondary=user_genres_association, back_populates="users")
     play_times = relationship("PlayTime", secondary=user_playtimes_association, back_populates="users")
 
