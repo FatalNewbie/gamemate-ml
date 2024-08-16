@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, Depends
 from pydantic import BaseModel
 import numpy as np
@@ -6,13 +7,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from data.database import get_db
 from user.user_model import User, Genre, PlayTime
+from dotenv import load_dotenv
+
+# .env 파일 로드
+load_dotenv()
 
 app = FastAPI()
+
+# 환경 변수 읽기
+cors_allowed_origins = os.getenv("CORS_ALLOWED_ORIGINS")
 
 # CORS 설정
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # React 앱의 주소
+    allow_origins=[f"{cors_allowed_origins}"],  # React 앱의 주소
     allow_credentials=True,
     allow_methods=["*"],  # 모든 HTTP 메서드 허용
     allow_headers=["*"],  # 모든 헤더 허용

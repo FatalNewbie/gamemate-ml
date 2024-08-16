@@ -6,3 +6,4 @@ sqlalchemy
 mysqlclient
 PyMySQL
 scikit-learn
+python-dotenv
